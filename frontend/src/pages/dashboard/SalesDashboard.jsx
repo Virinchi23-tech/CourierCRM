@@ -1,9 +1,9 @@
 import React from 'react';
 import StatCard from '../../components/common/StatCard';
-import { Users, Clock, AlertCircle, FileText, CalendarCheck, DollarSign, TrendingUp, CheckCircle } from 'lucide-react';
+import { Users, Clock, AlertCircle, FileText, CalendarCheck, DollarSign, TrendingUp, CheckCircle, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export default function SalesDashboard({ data }) {
+export default function SalesDashboard({ data, onRefresh, refreshing, lastUpdated }) {
   const kpi = data?.kpi || {};
 
   return (
@@ -16,25 +16,38 @@ export default function SalesDashboard({ data }) {
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight mt-1">Sales Performance Dashboard</h1>
           <p className="text-xs text-emerald-100 mt-1">Track assigned leads, follow-ups, quotations & bookings conversion</p>
+          {lastUpdated && (
+            <p className="text-[10px] text-emerald-100/80 mt-1">Last synced: {lastUpdated.toLocaleTimeString()}</p>
+          )}
         </div>
-        <div className="flex gap-2">
-          <Link to="/leads/new" className="px-4 py-2 rounded-xl bg-white text-emerald-700 hover:bg-emerald-50 font-bold text-xs shadow-sm transition-all">
-            + Add New Lead
-          </Link>
-          <Link to="/quotations" className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs transition-all">
-            Create Quotation
-          </Link>
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex gap-2">
+            <Link to="/leads/new" className="px-4 py-2 rounded-xl bg-white text-emerald-700 hover:bg-emerald-50 font-bold text-xs shadow-sm transition-all">
+              + Add New Lead
+            </Link>
+            <Link to="/quotations" className="px-4 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs transition-all">
+              Create Quotation
+            </Link>
+          </div>
+          <button
+            onClick={onRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-white transition-all disabled:opacity-60"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Syncing...' : 'Refresh'}
+          </button>
         </div>
       </div>
 
       {/* KPI Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         <StatCard title="My Leads" value={kpi.totalLeads || 0} icon={Users} color="emerald" subtitle="Total assigned" />
-        <StatCard title="Follow-ups Today" value={kpi.newLeadsToday || 0} icon={Clock} color="sky" subtitle="Action items" />
-        <StatCard title="Overdue Follow-ups" value="0" icon={AlertCircle} color="rose" subtitle="Requires attention" />
+        <StatCard title="New Leads Today" value={kpi.newLeadsToday || 0} icon={Clock} color="sky" subtitle="Added today" />
+        <StatCard title="Qualified Leads" value={kpi.qualifiedLeads || 0} icon={AlertCircle} color="amber" subtitle="Ready to quote" />
         <StatCard title="Quotations Sent" value={kpi.totalQuotations || 0} icon={FileText} color="purple" subtitle="Proposals" />
-        <StatCard title="Quotations Accepted" value={kpi.convertedLeads || 0} icon={CheckCircle} color="emerald" subtitle="Accepted" />
         <StatCard title="Bookings Created" value={kpi.totalBookings || 0} icon={CalendarCheck} color="cyan" subtitle="Confirmed orders" />
+        <StatCard title="Converted Leads" value={kpi.convertedLeads || 0} icon={CheckCircle} color="emerald" subtitle="Qualified + Booked" />
         <StatCard title="Pending Payment" value={`₹${(kpi.pendingPayments || 0).toLocaleString()}`} icon={DollarSign} color="amber" subtitle="Awaiting client" />
         <StatCard title="Revenue Generated" value={`₹${(kpi.paymentsReceived || 0).toLocaleString()}`} icon={DollarSign} color="emerald" subtitle="Paid revenue" />
       </div>

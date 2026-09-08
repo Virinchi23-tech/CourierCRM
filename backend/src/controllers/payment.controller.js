@@ -72,20 +72,21 @@ async function getPayments(req, res, next) {
 
 async function recordPayment(req, res, next) {
   try {
-    const { customer_id, booking_id, amount, payment_method = 'UPI', transaction_id, notes, status = 'PAID' } = req.body;
+    const { customer_id, booking_id, amount, payment_method = 'UPI', transaction_id, notes, status = 'PAID', payment_date } = req.body;
 
     if (!customer_id || !amount) {
       return res.status(400).json({ success: false, message: 'Customer ID and amount are required' });
     }
 
     const paymentCode = `PAY-${Math.floor(100000 + Math.random() * 900000)}`;
+    const paidDate = payment_date || new Date().toISOString().split('T')[0];
 
     const result = await execute(`
-      INSERT INTO payments (payment_code, customer_id, booking_id, amount, payment_method, transaction_id, status, notes, received_by)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO payments (payment_code, customer_id, booking_id, amount, payment_method, transaction_id, status, notes, received_by, payment_date)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       paymentCode, customer_id, booking_id || null, Number(amount), payment_method,
-      transaction_id || null, status, notes || null, req.user.id
+      transaction_id || null, status, notes || null, req.user.id, paidDate
     ]);
 
     // If linked to booking, update booking payment status

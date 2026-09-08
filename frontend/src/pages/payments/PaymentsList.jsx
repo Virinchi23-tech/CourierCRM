@@ -16,10 +16,12 @@ export default function PaymentsList() {
   const [formData, setFormData] = useState({
     customer_id: '',
     booking_id: '',
-    amount: 3186,
+    amount: '',
     payment_method: 'UPI',
-    transaction_id: 'UPI/20260908/990011',
-    notes: 'Advance courier freight payment'
+    transaction_id: '',
+    notes: '',
+    status: 'PAID',
+    payment_date: new Date().toISOString().split('T')[0]
   });
 
   const fetchPayments = async () => {
@@ -53,6 +55,16 @@ export default function PaymentsList() {
     try {
       await api.post('/payments', formData);
       setIsModalOpen(false);
+      setFormData({
+        customer_id: '',
+        booking_id: '',
+        amount: '',
+        payment_method: 'UPI',
+        transaction_id: '',
+        notes: '',
+        status: 'PAID',
+        payment_date: new Date().toISOString().split('T')[0]
+      });
       fetchPayments();
     } catch (err) {
       alert(err.message || 'Failed to record payment');
@@ -149,12 +161,12 @@ export default function PaymentsList() {
           </div>
 
           <div className="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-1 pt-3 border-t border-slate-100">TRANSACTION DETAILS</div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             <div>
               <label className="block text-slate-700 font-bold mb-1.5 flex items-center gap-1.5">
                 <DollarSign className="w-3.5 h-3.5 text-slate-400" /> Amount Received (₹) *
               </label>
-              <input required type="number" name="amount" value={formData.amount} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200/90 rounded-xl px-4 py-2.5 text-slate-900 font-medium outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all" />
+              <input required type="number" name="amount" value={formData.amount} onChange={handleChange} placeholder="e.g. 5000" className="w-full bg-slate-50 border border-slate-200/90 rounded-xl px-4 py-2.5 text-slate-900 font-medium outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all" />
             </div>
 
             <div>
@@ -175,6 +187,27 @@ export default function PaymentsList() {
                 <Hash className="w-3.5 h-3.5 text-slate-400" /> Transaction Ref / UTR #
               </label>
               <input type="text" name="transaction_id" value={formData.transaction_id} onChange={handleChange} placeholder="UTR / Ref Number" className="w-full bg-slate-50 border border-slate-200/90 rounded-xl px-4 py-2.5 text-slate-900 font-medium outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all" />
+            </div>
+
+            <div>
+              <label className="block text-slate-700 font-bold mb-1.5 flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5 text-slate-400" /> Payment Date *
+              </label>
+              <input required type="date" name="payment_date" value={formData.payment_date} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200/90 rounded-xl px-4 py-2.5 text-slate-900 font-medium outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 pt-1">
+            <div>
+              <label className="block text-slate-700 font-bold mb-1.5">Payment Status</label>
+              <select name="status" value={formData.status} onChange={handleChange} className="w-full bg-slate-50 border border-slate-200/90 rounded-xl px-4 py-2.5 text-slate-900 font-medium outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all">
+                <option value="PAID">PAID — Confirmed</option>
+                <option value="PENDING">PENDING — Awaiting clearance</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-slate-700 font-bold mb-1.5">Internal Notes</label>
+              <input type="text" name="notes" value={formData.notes} onChange={handleChange} placeholder="Optional notes" className="w-full bg-slate-50 border border-slate-200/90 rounded-xl px-4 py-2.5 text-slate-900 font-medium outline-none focus:bg-white focus:border-slate-900 focus:ring-1 focus:ring-slate-900 transition-all" />
             </div>
           </div>
 

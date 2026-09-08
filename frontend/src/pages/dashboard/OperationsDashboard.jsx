@@ -1,9 +1,9 @@
 import React from 'react';
 import StatCard from '../../components/common/StatCard';
-import { Truck, Package, AlertTriangle, CheckCircle, Clock, ShieldAlert, ArrowUpRight, Scale } from 'lucide-react';
+import { Truck, Package, AlertTriangle, CheckCircle, Clock, ShieldAlert, ArrowUpRight, Scale, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export default function OperationsDashboard({ data }) {
+export default function OperationsDashboard({ data, onRefresh, refreshing, lastUpdated }) {
   const kpi = data?.kpi || {};
 
   return (
@@ -16,27 +16,40 @@ export default function OperationsDashboard({ data }) {
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight mt-1">Logistics & Dispatch Control</h1>
           <p className="text-xs text-amber-100 mt-1">Package intake, volumetric weighing, courier handover & proof of delivery</p>
+          {lastUpdated && (
+            <p className="text-[10px] text-amber-100/80 mt-1">Last synced: {lastUpdated.toLocaleTimeString()}</p>
+          )}
         </div>
-        <div className="flex gap-2">
-          <Link to="/shipments/pending" className="px-4 py-2 rounded-xl bg-white text-amber-800 hover:bg-amber-50 font-bold text-xs shadow-sm transition-all">
-            Process Pickups
-          </Link>
-          <Link to="/shipments/all" className="px-4 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-xs transition-all">
-            All Shipments
-          </Link>
+        <div className="flex flex-col items-end gap-2">
+          <div className="flex gap-2">
+            <Link to="/shipments/pending" className="px-4 py-2 rounded-xl bg-white text-amber-800 hover:bg-amber-50 font-bold text-xs shadow-sm transition-all">
+              Process Pickups
+            </Link>
+            <Link to="/shipments/all" className="px-4 py-2 rounded-xl bg-amber-700 hover:bg-amber-800 text-white font-semibold text-xs transition-all">
+              All Shipments
+            </Link>
+          </div>
+          <button
+            onClick={onRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-white transition-all disabled:opacity-60"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin' : ''}`} />
+            {refreshing ? 'Syncing...' : 'Refresh'}
+          </button>
         </div>
       </div>
 
-      {/* KPI Grid */}
+      {/* KPI Grid - All values now real from DB */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         <StatCard title="Today's Bookings" value={kpi.totalBookings || 0} icon={Package} color="cyan" subtitle="Incoming bookings" />
-        <StatCard title="Pickup Pending" value={kpi.shipmentsInTransit ? 2 : 1} icon={Clock} color="amber" subtitle="Awaiting driver" />
+        <StatCard title="Pickup Pending" value={kpi.pickupPending || 0} icon={Clock} color="amber" subtitle="Awaiting driver" />
         <StatCard title="Packages Received" value={kpi.totalShipments || 0} icon={Scale} color="sky" subtitle="Weighed at hub" />
         <StatCard title="In Transit" value={kpi.shipmentsInTransit || 0} icon={Truck} color="amber" subtitle="Air & ground transit" />
         <StatCard title="Customs Hold" value={kpi.customsHold || 0} icon={AlertTriangle} color="rose" subtitle="Customs inspection" />
-        <StatCard title="Out for Delivery" value="1" icon={ArrowUpRight} color="teal" subtitle="Local courier delivery" />
+        <StatCard title="Out for Delivery" value={kpi.outForDelivery || 0} icon={ArrowUpRight} color="teal" subtitle="Local courier delivery" />
         <StatCard title="Delivered Today" value={kpi.deliveredShipments || 0} icon={CheckCircle} color="emerald" subtitle="POD Verified" />
-        <StatCard title="Returned / Issues" value="0" icon={ShieldAlert} color="rose" subtitle="Delivery exceptions" />
+        <StatCard title="Returned / Issues" value={kpi.returnedShipments || 0} icon={ShieldAlert} color="rose" subtitle="Delivery exceptions" />
       </div>
 
       {/* Operations Quick Action Cards */}

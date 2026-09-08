@@ -16,7 +16,10 @@ async function getDashboardMetrics(req, res, next) {
     const totalShipments = await queryOne('SELECT COUNT(*) as cnt FROM shipments');
     const shipmentsInTransit = await queryOne('SELECT COUNT(*) as cnt FROM shipments WHERE current_status IN ("IN_TRANSIT", "HANDED_TO_COURIER")');
     const deliveredShipments = await queryOne('SELECT COUNT(*) as cnt FROM shipments WHERE current_status = "DELIVERED"');
-    const customsHold = await queryOne('SELECT COUNT(*) as cnt FROM shipments WHERE current_status = "CUSTOMS_HOLD"');
+    const customsHold = await queryOne('SELECT COUNT(*) as cnt FROM shipments WHERE current_status IN ("CUSTOMS_HOLD", "CUSTOMS_CLEARANCE")');
+    const outForDelivery = await queryOne('SELECT COUNT(*) as cnt FROM shipments WHERE current_status = "OUT_FOR_DELIVERY"');
+    const returnedShipments = await queryOne('SELECT COUNT(*) as cnt FROM shipments WHERE current_status = "RETURNED"');
+    const pickupPending = await queryOne('SELECT COUNT(*) as cnt FROM shipments WHERE current_status IN ("BOOKED", "PICKUP_SCHEDULED", "PICKED_UP", "RECEIVED_AT_OFFICE", "PACKAGING", "READY_FOR_DISPATCH")');
     const pendingPayments = await queryOne('SELECT SUM(amount) as total FROM payments WHERE status = "PENDING"');
     const paymentsReceived = await queryOne('SELECT SUM(amount) as total FROM payments WHERE status = "PAID"');
 
@@ -26,11 +29,11 @@ async function getDashboardMetrics(req, res, next) {
     // Shipments by status
     const shipmentsByStatus = await query('SELECT current_status as status, COUNT(*) as count FROM shipments GROUP BY current_status');
 
-    // Revenue by month (last 6 months)
+    // Revenue by month (last 6 months) — ORDER ASC for correct chart direction
     const revenueByMonth = await query(`
       SELECT strftime('%Y-%m', payment_date) as month, SUM(amount) as revenue
-      FROM payments WHERE status = 'PAID'
-      GROUP BY month ORDER BY month DESC LIMIT 6
+      FROM payments WHERE status = 'PAID' AND payment_date IS NOT NULL
+      GROUP BY month ORDER BY month ASC LIMIT 6
     `);
 
     // Destination countries
@@ -63,6 +66,9 @@ async function getDashboardMetrics(req, res, next) {
         shipmentsInTransit: shipmentsInTransit?.cnt || 0,
         deliveredShipments: deliveredShipments?.cnt || 0,
         customsHold: customsHold?.cnt || 0,
+        outForDelivery: outForDelivery?.cnt || 0,
+        returnedShipments: returnedShipments?.cnt || 0,
+        pickupPending: pickupPending?.cnt || 0,
         pendingPayments: pendingPayments?.total || 0,
         paymentsReceived: paymentsReceived?.total || 0
       },

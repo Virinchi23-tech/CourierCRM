@@ -25,16 +25,19 @@ export default function BookingsList() {
   }, [searchTerm]);
 
   const handleCreateShipmentFromBooking = async (booking) => {
-    if (!window.confirm(`Create operational shipment for booking ${booking.booking_code}?`)) return;
+    const destination = booking.destination || booking.customer_country || '';
+    const actualDestination = destination || prompt('Enter destination country for this shipment:', 'United States');
+    if (!actualDestination) return;
+    if (!window.confirm(`Create operational shipment for booking ${booking.booking_code} to ${actualDestination}?`)) return;
     try {
       const res = await api.post('/shipments', {
         booking_id: booking.id,
         customer_id: booking.customer_id,
         courier_id: booking.courier_id,
         service_type: booking.service_type || 'International Express',
-        destination: 'United States',
+        destination: actualDestination,
         package_count: 1,
-        actual_weight: 5.0
+        actual_weight: 0
       });
 
       if (res.success) {

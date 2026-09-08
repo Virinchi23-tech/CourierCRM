@@ -145,7 +145,7 @@ async function updateCustomer(req, res, next) {
       company_name !== undefined ? company_name : oldCust.company_name,
       address !== undefined ? address : oldCust.address,
       city !== undefined ? city : oldCust.city,
-      state !== undefined ? state : oldLead.state,
+      state !== undefined ? state : oldCust.state,
       country || oldCust.country,
       postal_code !== undefined ? postal_code : oldCust.postal_code,
       notes !== undefined ? notes : oldCust.notes,
