@@ -16,16 +16,17 @@ async function getFollowups(req, res, next) {
     }
 
     if (category === 'today') {
-      whereClause += ' AND lf.followup_date = ? AND lf.status = "PENDING"';
-      params.push(todayStr);
+      whereClause += ' AND lf.followup_date = ? AND lf.status = ?';
+      params.push(todayStr, 'PENDING');
     } else if (category === 'overdue') {
-      whereClause += ' AND lf.followup_date < ? AND lf.status = "PENDING"';
-      params.push(todayStr);
+      whereClause += ' AND lf.followup_date < ? AND lf.status = ?';
+      params.push(todayStr, 'PENDING');
     } else if (category === 'upcoming') {
-      whereClause += ' AND lf.followup_date > ? AND lf.status = "PENDING"';
-      params.push(todayStr);
+      whereClause += ' AND lf.followup_date > ? AND lf.status = ?';
+      params.push(todayStr, 'PENDING');
     } else if (category === 'completed') {
-      whereClause += ' AND lf.status = "COMPLETED"';
+      whereClause += ' AND lf.status = ?';
+      params.push('COMPLETED');
     }
 
     const followups = await query(`

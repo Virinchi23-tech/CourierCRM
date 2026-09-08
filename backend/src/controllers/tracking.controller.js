@@ -60,7 +60,7 @@ async function recordDeliveryAndPOD(req, res, next) {
     }
 
     // Update shipment status to DELIVERED
-    await execute('UPDATE shipments SET current_status = "DELIVERED", updated_at = CURRENT_TIMESTAMP WHERE id = ?', [shipment_id]);
+    await execute('UPDATE shipments SET current_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', ['DELIVERED', shipment_id]);
 
     // Add final tracking event
     await execute(`

@@ -62,7 +62,7 @@ async function getCustomerProfile(req, res, next) {
       ORDER BY s.id DESC
     `, [custId]);
     const followups = await query('SELECT * FROM lead_followups WHERE customer_id = ? ORDER BY id DESC', [custId]);
-    const documents = await query('SELECT * FROM documents WHERE entity_type = "CUSTOMER" AND entity_id = ?', [custId]);
+    const documents = await query('SELECT * FROM documents WHERE entity_type = ? AND entity_id = ?', ['CUSTOMER', custId]);
 
     return res.json({
       success: true,

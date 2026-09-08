@@ -117,7 +117,7 @@ async function createQuotation(req, res, next) {
 
     // If linked to enquiry, update enquiry status
     if (enquiry_id) {
-      await execute('UPDATE enquiries SET status = "QUOTED" WHERE id = ?', [enquiry_id]);
+      await execute('UPDATE enquiries SET status = ? WHERE id = ?', ['QUOTED', enquiry_id]);
     }
 
     await logAudit({
@@ -208,7 +208,7 @@ async function convertQuotationToBooking(req, res, next) {
     ]);
 
     // Update Quotation status to ACCEPTED
-    await execute('UPDATE quotations SET status = "ACCEPTED" WHERE id = ?', [id]);
+    await execute('UPDATE quotations SET status = ? WHERE id = ?', ['ACCEPTED', id]);
 
     await logAudit({
       userId: req.user.id,

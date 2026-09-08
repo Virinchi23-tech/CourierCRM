@@ -136,7 +136,7 @@ async function createLead(req, res, next) {
 
     // Duplicate check
     const existing = await queryOne(
-      'SELECT id, lead_code FROM leads WHERE mobile = ? OR (email IS NOT NULL AND email != "" AND email = ?)',
+      "SELECT id, lead_code FROM leads WHERE mobile = ? OR (email IS NOT NULL AND email != '' AND email = ?)",
       [mobile, email || '']
     );
 
@@ -356,7 +356,7 @@ async function convertLeadToCustomer(req, res, next) {
     const customerId = resCust.lastInsertRowid;
 
     // Update lead status to BOOKED / QUALIFIED
-    await execute('UPDATE leads SET status = "QUALIFIED", updated_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+    await execute('UPDATE leads SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?', ['QUALIFIED', id]);
     await execute(
       'INSERT INTO lead_activities (lead_id, user_id, activity_type, description) VALUES (?, ?, ?, ?)',
       [id, req.user.id, 'CONVERTED', `Converted lead to customer ${customerCode}`]

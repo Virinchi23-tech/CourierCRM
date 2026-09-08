@@ -91,7 +91,7 @@ async function recordPayment(req, res, next) {
 
     // If linked to booking, update booking payment status
     if (booking_id && status === 'PAID') {
-      await execute('UPDATE bookings SET payment_status = "PAID" WHERE id = ?', [booking_id]);
+      await execute('UPDATE bookings SET payment_status = ? WHERE id = ?', ['PAID', booking_id]);
     }
 
     await logAudit({

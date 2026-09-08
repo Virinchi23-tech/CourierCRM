@@ -17,11 +17,11 @@ async function getShipments(req, res, next) {
 
     if (status) {
       if (status === 'PENDING') {
-        whereClause += ' AND s.current_status IN ("BOOKED", "PICKUP_SCHEDULED", "PICKED_UP", "RECEIVED_AT_OFFICE", "PACKAGING", "READY_FOR_DISPATCH")';
+        whereClause += " AND s.current_status IN ('BOOKED', 'PICKUP_SCHEDULED', 'PICKED_UP', 'RECEIVED_AT_OFFICE', 'PACKAGING', 'READY_FOR_DISPATCH')";
       } else if (status === 'IN_TRANSIT') {
-        whereClause += ' AND s.current_status IN ("HANDED_TO_COURIER", "IN_TRANSIT")';
+        whereClause += " AND s.current_status IN ('HANDED_TO_COURIER', 'IN_TRANSIT')";
       } else if (status === 'CUSTOMS') {
-        whereClause += ' AND s.current_status IN ("CUSTOMS_CLEARANCE", "CUSTOMS_HOLD")';
+        whereClause += " AND s.current_status IN ('CUSTOMS_CLEARANCE', 'CUSTOMS_HOLD')";
       } else {
         whereClause += ' AND s.current_status = ?';
         params.push(status);

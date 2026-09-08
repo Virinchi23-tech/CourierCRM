@@ -64,7 +64,7 @@ async function handleMetaLeadWebhook(req, res) {
               const dupCrm = await queryOne('SELECT id FROM leads WHERE mobile = ?', [sampleMobile]);
               if (!dupCrm) {
                 // Assign to Sales user
-                const salesUser = await queryOne('SELECT id FROM users WHERE role = "SALES" LIMIT 1');
+                const salesUser = await queryOne('SELECT id FROM users WHERE role = ? LIMIT 1', ['SALES']);
                 const assignee = salesUser ? salesUser.id : 1;
 
                 await execute(`
